@@ -20,6 +20,10 @@ chmod +x ~/.codex/codex-pulse/notify.sh
 
 Then copy the relevant examples from `examples/config-snippet.toml` and `examples/hooks.json`.
 
+## Preview
+
+![Codex needs you notification](assets/notification-preview.png)
+
 ## What This Is
 
 `hooks/notify.sh` reads Codex hook JSON and sends a quick alert when a turn finishes or Codex needs attention.
@@ -50,9 +54,25 @@ Codex runs configured hooks for lifecycle events and sends one JSON object on st
 
 ## Test
 
+Direct hook test:
+
 ```sh
 echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","session_id":"demo","model":"gpt-5.5"}' | ./hooks/notify.sh
 ```
+
+Real Codex test prompts:
+
+```text
+Run `sleep 8; echo codex-pulse notification test complete` and then stop.
+```
+
+Switch away while it sleeps. You should get `Codex finished`.
+
+```text
+Run `open -a Calculator` so I can test the approval notification.
+```
+
+Switch away when Codex asks for approval. You should get `Codex needs you`.
 
 ## License
 
