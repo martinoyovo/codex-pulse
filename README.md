@@ -21,6 +21,20 @@ chmod +x ~/.codex/codex-pulse/statusline.sh ~/.codex/codex-pulse/notify.sh
 
 Then copy the relevant examples from `examples/config-snippet.toml` and `examples/hooks.json`.
 
+## Preview
+
+With Nerd Font symbols enabled:
+
+```text
+◆ gpt-5.5 · codex-pulse · main · ctx 30% ▓▓░░░░░
+```
+
+Plain fallback:
+
+```text
+gpt-5.5 · codex-pulse · main · ctx 30%
+```
+
 ## What This Is
 
 `statusline.sh` reads the JSON payload Codex sends to an external status command and prints one styled line for the TUI footer. It shows the model, project, git branch, dirty state, and context usage when those values are available.
