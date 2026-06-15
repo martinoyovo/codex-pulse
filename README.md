@@ -34,7 +34,13 @@ What it needs:
 
 Environment variables:
 
-- `PULSE_NOTIFY`: defaults to auto detection. Use `osa`, `osc9`, `bell`, or `off`.
+- `PULSE_NOTIFY`: defaults to auto detection. Use `terminal-notifier`, `alerter`, `osa`, `osc9`, `bell`, or `off`.
+
+On macOS, the built-in `osascript` fallback may show notifications as Script Editor and clicking them may open Script Editor. Install `terminal-notifier` or `alerter` if you want a cleaner notification source:
+
+```sh
+brew install terminal-notifier
+```
 
 ## How It Works
 

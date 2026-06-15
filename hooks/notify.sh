@@ -32,6 +32,26 @@ case "$event" in
     *) exit 0 ;;
 esac
 
+notify_terminal_notifier() {
+    command -v terminal-notifier >/dev/null 2>&1 || return 1
+    terminal-notifier \
+        -title "Codex" \
+        -message "$message" \
+        -group "codex-pulse" \
+        >/dev/null 2>&1 &
+    return 0
+}
+
+notify_alerter() {
+    command -v alerter >/dev/null 2>&1 || return 1
+    alerter \
+        -title "Codex" \
+        -message "$message" \
+        -group "codex-pulse" \
+        >/dev/null 2>&1 &
+    return 0
+}
+
 notify_osa() {
     command -v osascript >/dev/null 2>&1 || return 1
     osascript -e "display notification \"$message\" with title \"Codex\"" >/dev/null 2>&1 &
@@ -48,11 +68,13 @@ notify_bell() {
 
 case "${PULSE_NOTIFY:-auto}" in
     off) ;;
+    terminal-notifier|notifier) notify_terminal_notifier || notify_osa || notify_osc9 ;;
+    alerter) notify_alerter || notify_osa || notify_osc9 ;;
     osa) notify_osa || notify_osc9 ;;
     osc9) notify_osc9 ;;
     bell) notify_bell ;;
     *)
-        notify_osa || notify_osc9 || notify_bell
+        notify_terminal_notifier || notify_alerter || notify_osa || notify_osc9 || notify_bell
         ;;
 esac
 
