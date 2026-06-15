@@ -44,9 +44,31 @@ notify_icon() {
     return 1
 }
 
+notify_sender() {
+    if [ -n "${PULSE_NOTIFY_SENDER:-}" ]; then
+        printf '%s' "$PULSE_NOTIFY_SENDER"
+        return 0
+    fi
+    if [ -d "/Applications/Codex.app" ]; then
+        printf '%s' "com.openai.codex"
+        return 0
+    fi
+    return 1
+}
+
 notify_terminal_notifier() {
     command -v terminal-notifier >/dev/null 2>&1 || return 1
     icon=$(notify_icon || printf '')
+    sender=$(notify_sender || printf '')
+    if [ -n "$sender" ]; then
+        terminal-notifier \
+            -title "Codex" \
+            -message "$message" \
+            -group "codex-pulse" \
+            -sender "$sender" \
+            >/dev/null 2>&1 &
+        return 0
+    fi
     if [ -n "$icon" ]; then
         terminal-notifier \
             -title "Codex" \

@@ -36,6 +36,7 @@ Environment variables:
 
 - `PULSE_NOTIFY`: defaults to auto detection. Use `terminal-notifier`, `alerter`, `osa`, `osc9`, `bell`, or `off`.
 - `PULSE_NOTIFY_ICON`: optional image path for `terminal-notifier`. Defaults to the local Codex app icon at `/Applications/Codex.app/Contents/Resources/icon.icns` when present.
+- `PULSE_NOTIFY_SENDER`: optional macOS bundle id for `terminal-notifier`. Defaults to `com.openai.codex` when `/Applications/Codex.app` exists, so notifications use Codex as the sender.
 
 On macOS, the built-in `osascript` fallback may show notifications as Script Editor and clicking them may open Script Editor. Install `terminal-notifier` or `alerter` if you want a cleaner notification source:
 
