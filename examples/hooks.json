@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "Stop": [
+      { "command": "/Users/you/.codex/codex-pulse/notify.sh" }
+    ],
+    "Notification": [
+      { "command": "/Users/you/.codex/codex-pulse/notify.sh" }
+    ]
+  }
+}
