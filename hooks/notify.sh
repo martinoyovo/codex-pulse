@@ -32,8 +32,30 @@ case "$event" in
     *) exit 0 ;;
 esac
 
+notify_icon() {
+    if [ -n "${PULSE_NOTIFY_ICON:-}" ] && [ -f "$PULSE_NOTIFY_ICON" ]; then
+        printf '%s' "$PULSE_NOTIFY_ICON"
+        return 0
+    fi
+    if [ -f "/Applications/Codex.app/Contents/Resources/icon.icns" ]; then
+        printf '%s' "/Applications/Codex.app/Contents/Resources/icon.icns"
+        return 0
+    fi
+    return 1
+}
+
 notify_terminal_notifier() {
     command -v terminal-notifier >/dev/null 2>&1 || return 1
+    icon=$(notify_icon || printf '')
+    if [ -n "$icon" ]; then
+        terminal-notifier \
+            -title "Codex" \
+            -message "$message" \
+            -group "codex-pulse" \
+            -appIcon "$icon" \
+            >/dev/null 2>&1 &
+        return 0
+    fi
     terminal-notifier \
         -title "Codex" \
         -message "$message" \
