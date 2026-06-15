@@ -5,9 +5,7 @@ set -u
 SCRIPT_DIR=$(unset CDPATH; cd -- "$(dirname -- "$0")" && pwd) || exit 1
 CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 INSTALL_DIR="$CODEX_DIR/codex-pulse"
-STATUS_SRC="$SCRIPT_DIR/statusline.sh"
 NOTIFY_SRC="$SCRIPT_DIR/hooks/notify.sh"
-STATUS_DST="$INSTALL_DIR/statusline.sh"
 NOTIFY_DST="$INSTALL_DIR/notify.sh"
 CONFIG_FILE="$CODEX_DIR/config.toml"
 HOOKS_FILE="$CODEX_DIR/hooks.json"
@@ -48,21 +46,17 @@ install_file() {
     fi
 }
 
-install_file "$STATUS_SRC" "statusline.sh" "$STATUS_DST"
 install_file "$NOTIFY_SRC" "hooks/notify.sh" "$NOTIFY_DST"
-chmod +x "$STATUS_DST" "$NOTIFY_DST" || exit 1
-
-status_line='tui_status_line = { command = "'"$STATUS_DST"'" }'
+chmod +x "$NOTIFY_DST" || exit 1
 
 merge_config() {
     if command -v python3 >/dev/null 2>&1; then
-        CONFIG_FILE=$CONFIG_FILE STATUS_LINE=$status_line python3 - <<'PY'
+        CONFIG_FILE=$CONFIG_FILE python3 - <<'PY'
 from pathlib import Path
-import os
 import re
+import os
 
 path = Path(os.environ["CONFIG_FILE"])
-status_line = os.environ["STATUS_LINE"]
 text = path.read_text() if path.exists() else ""
 
 if not re.search(r"(?m)^\s*\[features\]\s*$", text):
@@ -83,28 +77,18 @@ else:
             body += "hooks = true\n"
         text = text[:match.start()] + match.group(1) + body + text[match.end():]
 
-marker = "# codex-pulse status line"
-if marker not in text:
-    if text and not text.endswith("\n"):
-        text += "\n"
-    text += "\n" + marker + " (uncomment if your Codex build supports it)\n"
-    text += "# " + status_line + "\n"
-
 path.write_text(text)
 PY
     else
         if [ ! -f "$CONFIG_FILE" ]; then
             {
                 printf '[features]\n'
-                printf 'hooks = true\n\n'
-                printf '# codex-pulse status line (uncomment if your Codex build supports it)\n'
-                printf '# %s\n' "$status_line"
+                printf 'hooks = true\n'
             } > "$CONFIG_FILE"
         else
             printf 'Python 3 was not found, merge this into %s manually:\n' "$CONFIG_FILE"
             printf '[features]\n'
             printf 'hooks = true\n'
-            printf '# %s\n' "$status_line"
         fi
     fi
 }
@@ -177,14 +161,13 @@ fi
 
 printf '\ncodex-pulse installed.\n\n'
 printf 'Installed files:\n'
-printf '  %s\n' "$STATUS_DST"
 printf '  %s\n\n' "$NOTIFY_DST"
 printf 'Hooks were merged into:\n'
 printf '  %s\n\n' "$HOOKS_FILE"
 printf 'Codex version check: %s\n' "$codex_version"
-printf 'Status line support depends on your Codex build. Add this line to %s when supported:\n' "$CONFIG_FILE"
-printf '  %s\n\n' "$status_line"
-printf 'Test with:\n'
-printf '  %s\n' "echo '{\"model\":\"gpt-5.5\",\"cwd\":\"'\"\$PWD\"'\",\"context_window\":{\"used\":120000,\"total\":400000}}' | $STATUS_DST"
+printf 'Hooks were enabled in:\n'
+printf '  %s\n\n' "$CONFIG_FILE"
+printf 'Test notifications with:\n'
+printf '  %s\n' "echo '{\"hook_event_name\":\"Notification\",\"cwd\":\"'\"\$PWD\"'\",\"session_id\":\"demo\",\"model\":\"gpt-5.5\"}' | PULSE_NOTIFY=off $NOTIFY_DST"
 
 exit 0
