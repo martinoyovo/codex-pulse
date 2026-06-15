@@ -2,7 +2,7 @@
 
 set -u
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
+SCRIPT_DIR=$(unset CDPATH; cd -- "$(dirname -- "$0")" && pwd) || exit 1
 CODEX_DIR=${CODEX_HOME:-"$HOME/.codex"}
 INSTALL_DIR="$CODEX_DIR/codex-pulse"
 STATUS_SRC="$SCRIPT_DIR/statusline.sh"
@@ -179,6 +179,6 @@ printf 'Codex version check: %s\n' "$codex_version"
 printf 'Status line support depends on your Codex build. Add this line to %s when supported:\n' "$CONFIG_FILE"
 printf '  %s\n\n' "$status_line"
 printf 'Test with:\n'
-printf '  echo '\''{"model":"gpt-5.5","cwd":"'\''"$PWD"'\''","context_window":{"used":120000,"total":400000}}'\'' | %s\n' "$STATUS_DST"
+printf '  %s\n' "echo '{\"model\":\"gpt-5.5\",\"cwd\":\"'\"\$PWD\"'\",\"context_window\":{\"used\":120000,\"total\":400000}}' | $STATUS_DST"
 
 exit 0
