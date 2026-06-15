@@ -27,6 +27,7 @@ Then copy the relevant examples from `examples/config-snippet.toml` and `example
 What it needs:
 
 - The notification hook works today wherever Codex hooks are enabled with `[features] hooks = true`.
+- The first time Codex sees this hook, open `/hooks` in the CLI and trust it.
 - Hooks are not supported on Windows.
 
 ## Configuration
@@ -37,12 +38,12 @@ Environment variables:
 
 ## How It Works
 
-Codex runs configured hooks for lifecycle events and sends one JSON object on stdin. `hooks/notify.sh` reads the hook event name and sends a quick local alert for `Stop` and `Notification`.
+Codex runs configured hooks for lifecycle events and sends one JSON object on stdin. `hooks/notify.sh` reads the hook event name and sends a quick local alert for `Stop` and `PermissionRequest`.
 
 ## Test
 
 ```sh
-echo '{"hook_event_name":"Notification","cwd":"'"$PWD"'","session_id":"demo","model":"gpt-5.5"}' | ./hooks/notify.sh
+echo '{"hook_event_name":"Stop","cwd":"'"$PWD"'","session_id":"demo","model":"gpt-5.5"}' | ./hooks/notify.sh
 ```
 
 ## License

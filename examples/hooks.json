@@ -1,10 +1,26 @@
 {
   "hooks": {
     "Stop": [
-      { "command": "/Users/you/.codex/codex-pulse/notify.sh" }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/you/.codex/codex-pulse/notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
     ],
-    "Notification": [
-      { "command": "/Users/you/.codex/codex-pulse/notify.sh" }
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/you/.codex/codex-pulse/notify.sh",
+            "timeout": 5
+          }
+        ]
+      }
     ]
   }
 }

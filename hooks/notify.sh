@@ -28,7 +28,7 @@ fi
 
 case "$event" in
     Stop) message="Codex finished" ;;
-    Notification) message="Codex needs you" ;;
+    PermissionRequest|Notification) message="Codex needs you" ;;
     *) exit 0 ;;
 esac
 

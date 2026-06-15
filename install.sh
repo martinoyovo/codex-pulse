@@ -119,14 +119,50 @@ if not isinstance(hooks, dict):
     hooks = {}
     data["hooks"] = hooks
 
-for event in ("Stop", "Notification"):
+def is_codex_pulse_handler(item):
+    return isinstance(item, dict) and item.get("command") == notify
+
+def is_codex_pulse_group(item):
+    if not isinstance(item, dict):
+        return False
+    handlers = item.get("hooks")
+    if not isinstance(handlers, list):
+        return False
+    return any(is_codex_pulse_handler(handler) for handler in handlers)
+
+def normalized_group():
+    return {
+        "hooks": [
+            {
+                "type": "command",
+                "command": notify,
+                "timeout": 5,
+            }
+        ]
+    }
+
+for event in ("Stop", "PermissionRequest"):
     entries = hooks.setdefault(event, [])
     if not isinstance(entries, list):
         entries = []
         hooks[event] = entries
-    exists = any(isinstance(item, dict) and item.get("command") == notify for item in entries)
-    if not exists:
-        entries.append({"command": notify})
+    entries = [
+        item for item in entries
+        if not is_codex_pulse_handler(item) and not is_codex_pulse_group(item)
+    ]
+    entries.append(normalized_group())
+    hooks[event] = entries
+
+legacy_entries = hooks.get("Notification")
+if isinstance(legacy_entries, list):
+    legacy_entries = [
+        item for item in legacy_entries
+        if not is_codex_pulse_handler(item) and not is_codex_pulse_group(item)
+    ]
+    if legacy_entries:
+        hooks["Notification"] = legacy_entries
+    else:
+        hooks.pop("Notification", None)
 
 path.write_text(json.dumps(data, indent=2) + "\n")
 PY
@@ -136,10 +172,18 @@ PY
                 printf '{\n'
                 printf '  "hooks": {\n'
                 printf '    "Stop": [\n'
-                printf '      { "command": "%s" }\n' "$NOTIFY_DST"
+                printf '      {\n'
+                printf '        "hooks": [\n'
+                printf '          { "type": "command", "command": "%s", "timeout": 5 }\n' "$NOTIFY_DST"
+                printf '        ]\n'
+                printf '      }\n'
                 printf '    ],\n'
-                printf '    "Notification": [\n'
-                printf '      { "command": "%s" }\n' "$NOTIFY_DST"
+                printf '    "PermissionRequest": [\n'
+                printf '      {\n'
+                printf '        "hooks": [\n'
+                printf '          { "type": "command", "command": "%s", "timeout": 5 }\n' "$NOTIFY_DST"
+                printf '        ]\n'
+                printf '      }\n'
                 printf '    ]\n'
                 printf '  }\n'
                 printf '}\n'
@@ -168,6 +212,6 @@ printf 'Codex version check: %s\n' "$codex_version"
 printf 'Hooks were enabled in:\n'
 printf '  %s\n\n' "$CONFIG_FILE"
 printf 'Test notifications with:\n'
-printf '  %s\n' "echo '{\"hook_event_name\":\"Notification\",\"cwd\":\"'\"\$PWD\"'\",\"session_id\":\"demo\",\"model\":\"gpt-5.5\"}' | PULSE_NOTIFY=off $NOTIFY_DST"
+printf '  %s\n' "echo '{\"hook_event_name\":\"Stop\",\"cwd\":\"'\"\$PWD\"'\",\"session_id\":\"demo\",\"model\":\"gpt-5.5\"}' | PULSE_NOTIFY=off $NOTIFY_DST"
 
 exit 0
