@@ -11,7 +11,7 @@ STATUS_DST="$INSTALL_DIR/statusline.sh"
 NOTIFY_DST="$INSTALL_DIR/notify.sh"
 CONFIG_FILE="$CODEX_DIR/config.toml"
 HOOKS_FILE="$CODEX_DIR/hooks.json"
-RAW_URL=${PULSE_RAW_URL:-"<RAW_URL>"}
+RAW_URL=${PULSE_RAW_URL:-"https://raw.githubusercontent.com/martinoyovo/codex-pulse/main"}
 
 mkdir -p "$INSTALL_DIR" "$CODEX_DIR"
 
@@ -36,18 +36,21 @@ install_file() {
         return 0
     fi
     case "$RAW_URL" in
-        "<RAW_URL>"|"")
+        "")
             printf 'Local source %s was not found.\n' "$src" >&2
             printf 'For piped installs, set PULSE_RAW_URL to the raw repository URL.\n' >&2
             exit 1
             ;;
     esac
-    fetch_file "$RAW_URL/$url_path" "$dst"
+    if ! fetch_file "$RAW_URL/$url_path" "$dst"; then
+        printf 'Could not download %s/%s.\n' "$RAW_URL" "$url_path" >&2
+        exit 1
+    fi
 }
 
 install_file "$STATUS_SRC" "statusline.sh" "$STATUS_DST"
 install_file "$NOTIFY_SRC" "hooks/notify.sh" "$NOTIFY_DST"
-chmod +x "$STATUS_DST" "$NOTIFY_DST"
+chmod +x "$STATUS_DST" "$NOTIFY_DST" || exit 1
 
 status_line='tui_status_line = { command = "'"$STATUS_DST"'" }'
 

@@ -5,7 +5,7 @@ A tiny Codex CLI companion that adds a polished footer line and desktop friendly
 ## Install
 
 ```sh
-curl -fsSL <RAW_URL>/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/martinoyovo/codex-pulse/main/install.sh | sh
 ```
 
 The installer copies the scripts to `~/.codex/codex-pulse`, enables Codex hooks in `~/.codex/config.toml`, merges notification hooks into `~/.codex/hooks.json`, and prints the status line config to add when your Codex build supports it.
