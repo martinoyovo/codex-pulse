@@ -34,7 +34,12 @@ import sys
 try:
     data = json.loads(sys.stdin.read() or "{}")
 except Exception:
-    data = {}
+    print("ERR")
+    sys.exit(0)
+
+if not isinstance(data, dict):
+    print("ERR")
+    sys.exit(0)
 
 def text(value):
     return value if isinstance(value, str) else ""
@@ -101,6 +106,7 @@ elif total and remaining is not None and total > 0:
 if percent != "":
     percent = max(0, min(100, int(percent)))
 
+print("OK")
 for value in (model, cwd, project, str(percent) if percent != "" else ""):
     print(value)
 ' 2>/dev/null
@@ -121,15 +127,21 @@ json_number_sed() {
 }
 
 parsed=$(printf '%s' "$payload" | json_parse_python) || parsed=
-if [ -n "$parsed" ]; then
-    MODEL=$(printf '%s\n' "$parsed" | sed -n '1p')
-    CWD=$(printf '%s\n' "$parsed" | sed -n '2p')
-    PROJECT=$(printf '%s\n' "$parsed" | sed -n '3p')
-    CTX_PERCENT=$(printf '%s\n' "$parsed" | sed -n '4p')
+parse_status=$(printf '%s\n' "$parsed" | sed -n '1p')
+if [ "$parse_status" = "ERR" ]; then
+    exit 0
+elif [ "$parse_status" = "OK" ]; then
+    MODEL=$(printf '%s\n' "$parsed" | sed -n '2p')
+    CWD=$(printf '%s\n' "$parsed" | sed -n '3p')
+    PROJECT=$(printf '%s\n' "$parsed" | sed -n '4p')
+    CTX_PERCENT=$(printf '%s\n' "$parsed" | sed -n '5p')
 else
     MODEL=$(json_string_sed model)
     CWD=$(json_string_sed cwd)
-    PROJECT=$(basename "${CWD:-.}" 2>/dev/null || printf '')
+    PROJECT=
+    if [ -n "$CWD" ]; then
+        PROJECT=$(basename "$CWD" 2>/dev/null || printf '')
+    fi
     used=$(json_number_sed used)
     total=$(json_number_sed total)
     remaining=$(json_number_sed remaining)
