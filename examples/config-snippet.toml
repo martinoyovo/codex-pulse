@@ -1,5 +1,5 @@
 [features]
-codex_hooks = true
+hooks = true
 
 # Uncomment this when your Codex build supports the external status line option.
 # tui_status_line = { command = "/Users/you/.codex/codex-pulse/statusline.sh" }

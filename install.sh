@@ -68,16 +68,19 @@ text = path.read_text() if path.exists() else ""
 if not re.search(r"(?m)^\s*\[features\]\s*$", text):
     if text and not text.endswith("\n"):
         text += "\n"
-    text += "\n[features]\ncodex_hooks = true\n"
+    text += "\n[features]\nhooks = true\n"
 else:
     pattern = r"(?ms)^(\s*\[features\]\s*\n)(.*?)(?=^\s*\[|\Z)"
     match = re.search(pattern, text)
     if match:
         body = match.group(2)
-        if re.search(r"(?m)^\s*codex_hooks\s*=", body):
-            body = re.sub(r"(?m)^(\s*)codex_hooks\s*=.*$", r"\1codex_hooks = true", body)
+        body = re.sub(r"(?m)^\s*codex_hooks\s*=.*\n?", "", body)
+        if re.search(r"(?m)^\s*hooks\s*=", body):
+            body = re.sub(r"(?m)^(\s*)hooks\s*=.*$", r"\1hooks = true", body)
         else:
-            body += "codex_hooks = true\n"
+            if body and not body.endswith("\n"):
+                body += "\n"
+            body += "hooks = true\n"
         text = text[:match.start()] + match.group(1) + body + text[match.end():]
 
 marker = "# codex-pulse status line"
@@ -93,14 +96,14 @@ PY
         if [ ! -f "$CONFIG_FILE" ]; then
             {
                 printf '[features]\n'
-                printf 'codex_hooks = true\n\n'
+                printf 'hooks = true\n\n'
                 printf '# codex-pulse status line (uncomment if your Codex build supports it)\n'
                 printf '# %s\n' "$status_line"
             } > "$CONFIG_FILE"
         else
             printf 'Python 3 was not found, merge this into %s manually:\n' "$CONFIG_FILE"
             printf '[features]\n'
-            printf 'codex_hooks = true\n'
+            printf 'hooks = true\n'
             printf '# %s\n' "$status_line"
         fi
     fi

@@ -44,7 +44,7 @@ gpt-5.5 · codex-pulse · main · ctx 30%
 What it needs:
 
 - The status line requires a Codex build with the external command status line option.
-- The notification hook works today wherever Codex hooks are enabled with `[features] codex_hooks = true`.
+- The notification hook works today wherever Codex hooks are enabled with `[features] hooks = true`.
 - Hooks are not supported on Windows.
 
 ## Configuration
